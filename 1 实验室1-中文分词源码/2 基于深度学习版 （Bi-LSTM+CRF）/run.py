@@ -12,7 +12,7 @@ def get_param():
     parser = argparse.ArgumentParser()
     parser.add_argument('--embedding_dim', type=int, default=100)
     parser.add_argument('--lr', type=float, default=0.005)
-    parser.add_argument('--max_epoch', type=int, default=10)
+    parser.add_argument('--max_epoch', type=int, default=30)
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--hidden_dim', type=int, default=200)
     parser.add_argument('--cuda', action='store_true', default=False)

@@ -4,7 +4,7 @@ import jieba
 from run import entity_split
 
 if __name__ == '__main__':
-    model = torch.load('save/model_epoch3.pkl', map_location=torch.device('cpu'))
+    model = torch.load('save/model_epoch22.pkl', map_location=torch.device('cpu'))
     entity_predict = set()
     entity_label = set()
     cur_pre = 0
