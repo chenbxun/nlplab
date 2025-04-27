@@ -62,9 +62,10 @@ class CWS(nn.Module):
         return lstm_feats
 
     def forward(self, input_ids, tags, mask, attention_mask, length):
+        # length 应为原始长度（DataLoader返回的original_lengths）
         emissions = self._get_lstm_features(input_ids, attention_mask, length)
         loss = -self.crf(emissions, tags, mask, reduction='mean')
-        # CRF层本身并不直接接收原始的句子（x）作为输入，而是接收经过模型处理后的发射分数（Emission Scores）和标注序列（Ground Truth Tags, y）
+        # BERT+LSTM的输出包含[CLS]/[SEP]位置的发射分数，但CRF需要通过mask排除填充部分（[PAD]）
         return loss
 
     def infer(self, input_ids, mask, attention_mask, length):
