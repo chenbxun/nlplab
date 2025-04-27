@@ -52,3 +52,6 @@ if __name__ == '__main__':
         print("precision: 0")
         print("recall: 0")
         print("fscore: 0")
+# precision: 0.904776
+# recall: 0.936776
+# fscore: 0.920498

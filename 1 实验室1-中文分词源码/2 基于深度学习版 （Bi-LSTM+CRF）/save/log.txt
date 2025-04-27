@@ -76,3 +76,7 @@
 2025-0415 23:35:02 DEBUG    epoch 6-step 200 loss: 1.143772
 2025-0415 23:39:12 DEBUG    epoch 6-step 300 loss: 1.237496
 2025-0415 23:42:32 DEBUG    epoch 6-step 400 loss: 1.288733
+
+precision: 0.773781
+recall: 0.772958
+fscore: 0.773369
