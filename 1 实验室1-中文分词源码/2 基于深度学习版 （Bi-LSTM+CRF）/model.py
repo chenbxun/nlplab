@@ -20,7 +20,7 @@ class CWS(nn.Module):
         # 不限制输入张量的形状，它会逐元素地进行替换操作
         # 嵌入矩阵的参数在模型训练过程中通过反向传播不断更新
 
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim // 2, num_layers=1,
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim // 2, num_layers=2,
                             bidirectional=True, batch_first=True) # 双向 LSTM，用于捕捉上下文信息
         self.hidden2tag = nn.Linear(hidden_dim, self.tagset_size) # 线性层，将 LSTM 输出转换为标签概率
 
@@ -39,8 +39,9 @@ class CWS(nn.Module):
         # CRF通过对所有可能的标签序列进行评分，选择整体得分最高的序列，从而保证解码结果的全局最优。
 
     def init_hidden(self, batch_size, device):
-        return (torch.randn(2, batch_size, self.hidden_dim // 2, device=device),
-                torch.randn(2, batch_size, self.hidden_dim // 2, device=device))
+        # 注意：num_layers 和 bidirectional 决定了隐藏状态的形状
+        return (torch.randn(2*2, batch_size, self.hidden_dim // 2, device=device),
+                torch.randn(2*2, batch_size, self.hidden_dim // 2, device=device))
 
     def _get_lstm_features(self, sentence, length):
         # sentence: 一批输入句子的词索引形式，形状通常是 (batch_size, seq_len)
