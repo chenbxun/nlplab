@@ -6,7 +6,7 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 class CWS(nn.Module):
 
-    def __init__(self, vocab_size, tag2id, embedding_dim, hidden_dim):
+    def __init__(self, vocab_size, tag2id, embedding_dim, hidden_dim, num_layers = 2, dropout_rate=0.3):
         # tag2id: 从标签到唯一整数ID的映射字典，用于将字符串形式的标签转换为神经网络能够处理的数字形式
         super(CWS, self).__init__()
         self.embedding_dim = embedding_dim
@@ -20,8 +20,9 @@ class CWS(nn.Module):
         # 不限制输入张量的形状，它会逐元素地进行替换操作
         # 嵌入矩阵的参数在模型训练过程中通过反向传播不断更新
 
-        self.lstm = nn.LSTM(embedding_dim, hidden_dim // 2, num_layers=1,
-                            bidirectional=True, batch_first=True) # 双向 LSTM，用于捕捉上下文信息
+        self.lstm = nn.LSTM(embedding_dim, hidden_dim // 2, num_layers=num_layers,
+                            bidirectional=True, batch_first=True, dropout=dropout_rate if num_layers > 1 else 0) # 双向 LSTM，用于捕捉上下文信息
+        self.dropout = nn.Dropout(dropout_rate)
         self.hidden2tag = nn.Linear(hidden_dim, self.tagset_size) # 线性层，将 LSTM 输出转换为标签概率
 
         self.crf = CRF(4, batch_first=True) # CRF 层，用于计算损失和预测
@@ -39,8 +40,8 @@ class CWS(nn.Module):
         # CRF通过对所有可能的标签序列进行评分，选择整体得分最高的序列，从而保证解码结果的全局最优。
 
     def init_hidden(self, batch_size, device):
-        return (torch.randn(2, batch_size, self.hidden_dim // 2, device=device),
-                torch.randn(2, batch_size, self.hidden_dim // 2, device=device))
+        return (torch.randn(2*2, batch_size, self.hidden_dim // 2, device=device),
+                torch.randn(2*2, batch_size, self.hidden_dim // 2, device=device))
 
     def _get_lstm_features(self, sentence, length):
         # sentence: 一批输入句子的词索引形式，形状通常是 (batch_size, seq_len)
@@ -57,6 +58,7 @@ class CWS(nn.Module):
         self.hidden = self.init_hidden(batch_size, sentence.device)
         lstm_out, self.hidden = self.lstm(embeds, self.hidden)
         lstm_out, _ = pad_packed_sequence(lstm_out, batch_first=True)
+        lstm_out = self.dropout(lstm_out)
         lstm_feats = self.hidden2tag(lstm_out)
         return lstm_feats
 
