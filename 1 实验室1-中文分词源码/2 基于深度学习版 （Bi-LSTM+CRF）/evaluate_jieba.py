@@ -9,8 +9,8 @@ if __name__ == '__main__':
     entity_label = set()
     cur_pre = 0
     cur_lab = 0
-    predict_output = open('predict.txt', 'w', encoding='utf-8')
-    label_output = open('label.txt', 'w', encoding='utf-8')
+    predict_output = open('predict_jieba.txt', 'w', encoding='utf-8')
+    label_output = open('label_jieba.txt', 'w', encoding='utf-8')
 
     with open('data/datasave.pkl', 'rb') as inp:
         word2id = pickle.load(inp)
@@ -62,3 +62,7 @@ if __name__ == '__main__':
         print("precision: 0")
         print("recall: 0")
         print("fscore: 0")
+
+# precision: 0.779825
+# recall: 0.782754
+# fscore: 0.781287
