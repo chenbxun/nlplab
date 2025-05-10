@@ -1,5 +1,5 @@
 from Dictionary_based import Tokenizer
-import jieba
+import thulac
 
 def load_dict(path):
     tmp = set()
@@ -19,12 +19,13 @@ if __name__ == '__main__':
 
     # test
     tokenizer = Tokenizer(words, max_len)
+    thu1 = thulac.thulac(seg_only=True)
     entity_predict = set() # 模型预测的实体的起始和结束位置的集合
     entity_label = set()
     cur_pre = 0
     cur_lab = 0
-    predict_output = open('predict.txt', 'w', encoding='utf-8')
-    label_output = open('label.txt', 'w', encoding='utf-8')
+    predict_output = open('predict_thulac.txt', 'w', encoding='utf-8')
+    label_output = open('label_thulac.txt', 'w', encoding='utf-8')
     with open('test_data.txt', 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip() # 移除字符串头尾指定的字符（默认为空格或换行符）或字符序列
@@ -35,11 +36,12 @@ if __name__ == '__main__':
                 cur_pre += len(word)
             print(' '.join(predict), file=predict_output)
 
-            label = jieba.lcut(line)
-            for word in label:
+            # label = jieba.lcut(line)
+            label = thu1.cut(line, text=True) # 我 爱 北京 天安门
+            for word in label.split(" "): # ['我', '爱', '北京', '天安门']
                 entity_label.add((cur_lab, cur_lab + len(word) - 1))
                 cur_lab += len(word)
-            print(' '.join(label), file=label_output)
+            print(label, file=label_output)
 
     right_predict = [i for i in entity_predict if i in entity_label]
     if len(right_predict) != 0:
@@ -52,6 +54,6 @@ if __name__ == '__main__':
         print("precision: 0")
         print("recall: 0")
         print("fscore: 0")
-# precision: 0.904776
-# recall: 0.936776
-# fscore: 0.920498
+# precision: 0.772279
+# recall: 0.764262
+# fscore: 0.768250

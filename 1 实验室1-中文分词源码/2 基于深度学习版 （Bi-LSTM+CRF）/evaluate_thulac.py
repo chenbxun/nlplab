@@ -1,16 +1,17 @@
 import torch
 import pickle
-import jieba
 from run import entity_split
+import thulac
 
 if __name__ == '__main__':
     model = torch.load('save/model_epoch4.pkl', map_location=torch.device('cpu'))
+    thu1 = thulac.thulac(seg_only=True)
     entity_predict = set()
     entity_label = set()
     cur_pre = 0
     cur_lab = 0
-    predict_output = open('predict.txt', 'w', encoding='utf-8')
-    label_output = open('label.txt', 'w', encoding='utf-8')
+    predict_output = open('predict_thulac.txt', 'w', encoding='utf-8')
+    label_output = open('label_thulac.txt', 'w', encoding='utf-8')
 
     with open('data/datasave.pkl', 'rb') as inp:
         word2id = pickle.load(inp)
@@ -45,11 +46,12 @@ if __name__ == '__main__':
             entity_split(x[0], predict, id2tag, entity_predict, cur_pre)
             cur_pre += len(test)
 
-            label = jieba.lcut(test)
-            for word in label:
+            # label = jieba.lcut(test)
+            label = thu1.cut(test, text=True) # 我 爱 北京 天安门
+            for word in label.split(" "): # ['我', '爱', '北京', '天安门']
                 entity_label.add((cur_lab, cur_lab + len(word) - 1))
                 cur_lab += len(word)
-            print(' '.join(label), file=label_output)
+            print(label, file=label_output)
     
     right_predict = [i for i in entity_predict if i in entity_label]
     if len(right_predict) != 0:
@@ -62,3 +64,7 @@ if __name__ == '__main__':
         print("precision: 0")
         print("recall: 0")
         print("fscore: 0")
+
+# precision: 0.829389
+# recall: 0.791576
+# fscore: 0.810041
